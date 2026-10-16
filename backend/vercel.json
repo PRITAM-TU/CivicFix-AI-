@@ -1,10 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.py"
-    }
-  ],
   "env": {
     "APP_ENV": "production",
     "DEBUG": "false",

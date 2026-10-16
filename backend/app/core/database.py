@@ -4,6 +4,7 @@ Abstraction over SQLite (dev) and PostgreSQL + PostGIS (prod).
 """
 from __future__ import annotations
 
+import os
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
@@ -39,9 +40,13 @@ def _build_engine():
     """
     url = settings.database_url
 
+    is_vercel = os.environ.get("VERCEL") == "1"
+
     if settings.is_sqlite:
-        # Ensure aiosqlite driver is used
-        if url.startswith("sqlite:///") and "+aiosqlite" not in url:
+        # On Vercel / serverless, filesystem is read-only except /tmp
+        if is_vercel and ("/tmp" not in url):
+            url = "sqlite+aiosqlite:////tmp/civicfix.db"
+        elif url.startswith("sqlite:///") and "+aiosqlite" not in url:
             url = url.replace("sqlite:///", "sqlite+aiosqlite:///")
 
         engine = create_async_engine(
@@ -116,7 +121,10 @@ async def init_db() -> None:
         from app.models import _import_all_models  # noqa: F401
         await conn.run_sync(Base.metadata.create_all)
 
-    if settings.app_env != AppEnv.production:
+    is_vercel = os.environ.get("VERCEL") == "1"
+    auto_seed = os.environ.get("AUTO_SEED", "").lower() in ("true", "1", "yes")
+
+    if settings.app_env != AppEnv.production or (is_vercel and settings.is_sqlite) or auto_seed:
         async with AsyncSessionLocal() as session:
             try:
                 from app.core.seed import seed_all

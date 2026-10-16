@@ -26,6 +26,5 @@
     "SMS_PROVIDER": "mock",
     "LOG_LEVEL": "WARNING",
     "SLA_SCAN_INTERVAL_SECONDS": "300"
-  },
-  "regions": ["bom1"]
+  }
 }

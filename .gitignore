@@ -52,6 +52,9 @@ logs/
 # ── Alembic ───────────────────────────────────────────────────
 backend/migrations/versions/*.py
 
+# ── Vercel ────────────────────────────────────────────────────
+.vercel/
+
 # ── Secrets (never commit these) ─────────────────────────────
 .env
 .env.local

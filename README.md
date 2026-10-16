@@ -283,6 +283,8 @@ pytest tests/test_agents.py -v
 | [GIS](docs/gis.md) | Geospatial features |
 | [API](docs/api.md) | REST API reference |
 | [Demo](docs/demo.md) | Demo scenario walkthrough |
+| [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md) | Fullstack Vercel deployment guide |
+| [Interview Guide](docs/CIVICFIX_AI_Interview_Guide.md) | Comprehensive interview prep & Q&A |
 
 ---
 

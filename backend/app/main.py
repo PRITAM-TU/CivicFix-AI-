@@ -24,7 +24,12 @@ logger = get_logger(__name__)
 
 
 # ── Serverless / Vercel detection ───────────────────────────────────────────
-IS_VERCEL = os.environ.get("VERCEL") == "1"
+IS_VERCEL = (
+    os.environ.get("VERCEL") == "1"
+    or bool(os.environ.get("VERCEL_REGION"))
+    or bool(os.environ.get("VERCEL_ENV"))
+    or bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+)
 
 
 @contextlib.asynccontextmanager
@@ -42,9 +47,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         serverless=IS_VERCEL,
     )
 
-    # Initialise database (create tables if not exist)
-    await init_db()
-    logger.info("Database initialised", mode=settings.database_mode.value)
+    # Initialise database (create tables if not exist) safely
+    try:
+        await init_db()
+        logger.info("Database initialised", mode=settings.database_mode.value)
+    except Exception as exc:
+        logger.error("Database initialisation error on startup", error=str(exc))
 
     # SLA background monitor — skip on Vercel (serverless has no persistent tasks)
     sla_monitor = None
@@ -104,6 +112,18 @@ def create_app() -> FastAPI:
 
     # ── Routers ───────────────────────────────────────────────
     app.include_router(api_router)
+
+    # ── Root welcome & status endpoint ────────────────────────
+    @app.get("/", tags=["Root"])
+    async def root():
+        return {
+            "name": settings.app_name,
+            "version": settings.app_version,
+            "status": "online",
+            "service": "CivicFix AI Backend API",
+            "docs": "/docs",
+            "health": "/api/health",
+        }
 
     # ── Static uploads ────────────────────────────────────────
     # On Vercel, filesystem is read-only between invocations.

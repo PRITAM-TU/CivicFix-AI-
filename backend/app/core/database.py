@@ -23,7 +23,15 @@ class Base(DeclarativeBase):
     pass
 
 
-# ── Engine factory ───────────────────────────────────────────────────────────
+def is_running_on_vercel() -> bool:
+    """Detect whether app is executing inside Vercel serverless environment."""
+    return (
+        os.environ.get("VERCEL") == "1"
+        or bool(os.environ.get("VERCEL_REGION"))
+        or bool(os.environ.get("VERCEL_ENV"))
+        or bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+    )
+
 
 def _build_engine():
     """
@@ -39,8 +47,7 @@ def _build_engine():
         - Supports PostGIS via geoalchemy2
     """
     url = settings.database_url
-
-    is_vercel = os.environ.get("VERCEL") == "1"
+    is_vercel = is_running_on_vercel()
 
     if settings.is_sqlite:
         # On Vercel / serverless, filesystem is read-only except /tmp
@@ -52,7 +59,7 @@ def _build_engine():
         engine = create_async_engine(
             url,
             echo=settings.debug,
-            connect_args={"check_same_thread": False},
+            connect_args={"check_same_thread": False, "timeout": 30},
         )
     else:
         # PostgreSQL — ensure psycopg async driver
@@ -121,7 +128,7 @@ async def init_db() -> None:
         from app.models import _import_all_models  # noqa: F401
         await conn.run_sync(Base.metadata.create_all)
 
-    is_vercel = os.environ.get("VERCEL") == "1"
+    is_vercel = is_running_on_vercel()
     auto_seed = os.environ.get("AUTO_SEED", "").lower() in ("true", "1", "yes")
 
     if settings.app_env != AppEnv.production or (is_vercel and settings.is_sqlite) or auto_seed:
@@ -130,6 +137,7 @@ async def init_db() -> None:
                 from app.core.seed import seed_all
                 await seed_all(session)
                 await session.commit()
-            except Exception:
+            except Exception as e:
                 await session.rollback()
-                raise
+                from app.core.logging import get_logger
+                get_logger(__name__).warning("Database seeding skipped or encountered issue", error=str(e))

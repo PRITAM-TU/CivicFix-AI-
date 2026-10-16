@@ -58,7 +58,7 @@ Deploying Frontend and Backend as two separate projects in Vercel is the most fl
 3. Under **Environment Variables**, add:
    | Variable | Value | Notes |
    |---|---|---|
-   | `VITE_API_BASE_URL` | `https://civicfix-api.vercel.app/api` | Point to your backend from Step 1 |
+   | `VITE_API_BASE_URL` | `https://civicfix-api.vercel.app/api` | Point to your backend from Step 1; the frontend also adds `/api` if omitted |
 4. Click **Deploy**.
 5. Once deployed, open your frontend URL!
 
@@ -157,7 +157,7 @@ GOOGLE_MODEL=gemini-1.5-pro
 - [x] Backend `backend/vercel.json` configured for `@vercel/python`
 - [x] Frontend `frontend/vercel.json` configured with SPA rewrites
 - [x] Root `vercel.json` configured for unified monorepo deployment
-- [x] Frontend `api.ts` supports `VITE_API_BASE_URL` with fallback to `/api`
+- [x] Frontend `api.ts` normalizes `VITE_API_BASE_URL` to include `/api`, with same-origin fallback
 - [x] Vercel serverless `/tmp` SQLite write handling configured
 - [x] Auto-seed support enabled for zero-config demo experience
 - [x] Serverless-safe background task skipping in `main.py`

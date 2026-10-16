@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from app.api.deps import CurrentUser, DBSession
 from app.core.config import settings
@@ -143,7 +143,7 @@ async def change_password(
     body: PasswordChangeRequest,
     current_user: CurrentUser,
     db: DBSession,
-) -> None:
+) -> Response:
     svc = UserService(db)
     try:
         await svc.change_password(
@@ -156,3 +156,4 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Current password is incorrect.",
         )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

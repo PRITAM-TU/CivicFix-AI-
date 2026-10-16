@@ -1,0 +1,59 @@
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Node ─────────────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
+
+# ── IDE ───────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Docker ────────────────────────────────────────────────────
+.docker/
+
+# ── Uploads ──────────────────────────────────────────────────
+backend/uploads/
+*.jpg
+*.jpeg
+*.png
+*.mp3
+*.mp4
+*.wav
+!frontend/public/
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Alembic ───────────────────────────────────────────────────
+backend/migrations/versions/*.py
+
+# ── Secrets (never commit these) ─────────────────────────────
+.env
+.env.local
+.env.production
+secrets/

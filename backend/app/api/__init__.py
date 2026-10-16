@@ -1,0 +1,3 @@
+"""
+CivicFix AI — API package.
+"""

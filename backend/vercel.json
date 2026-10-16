@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "DEBUG": "false",
+    "AI_MODE": "mock",
+    "AI_PROVIDER": "mock",
+    "MCP_MODE": "mock",
+    "DATABASE_MODE": "sqlite",
+    "GEOCODING_PROVIDER": "mock",
+    "SMS_PROVIDER": "mock",
+    "LOG_LEVEL": "WARNING",
+    "SLA_SCAN_INTERVAL_SECONDS": "300"
+  },
+  "regions": ["bom1"]
+}

@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
-from app.core.config import settings
+from app.core.config import get_upload_directory, settings
 from app.core.database import init_db
 from app.core.logging import configure_logging, get_logger
 from app.workers.sla_monitor import run_sla_monitor
@@ -126,11 +126,10 @@ def create_app() -> FastAPI:
         }
 
     # ── Static uploads ────────────────────────────────────────
-    # On Vercel, filesystem is read-only between invocations.
-    # Use Cloudinary / S3 for production; local dir for dev only.
-    if not IS_VERCEL:
-        os.makedirs(settings.upload_dir, exist_ok=True)
-        app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
+    # Serverless storage is temporary; production deployments should use object storage.
+    upload_directory = get_upload_directory()
+    os.makedirs(upload_directory, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=upload_directory), name="uploads")
 
     # ── Exception handlers ────────────────────────────────────
 

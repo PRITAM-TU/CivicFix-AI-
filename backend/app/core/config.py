@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import lru_cache
+import os
 from typing import List
 
 from pydantic import Field, field_validator
@@ -146,3 +147,15 @@ def get_settings() -> Settings:
 
 # Convenience alias used throughout the codebase
 settings = get_settings()
+
+
+def get_upload_directory() -> str:
+    """Return a writable upload location for the current runtime."""
+    if (
+        os.environ.get("VERCEL") == "1"
+        or bool(os.environ.get("VERCEL_REGION"))
+        or bool(os.environ.get("VERCEL_ENV"))
+        or bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+    ):
+        return "/tmp/uploads"
+    return settings.upload_dir

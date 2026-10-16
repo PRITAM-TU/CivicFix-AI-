@@ -20,7 +20,7 @@ from fastapi import (
 )
 
 from app.api.deps import CurrentUser, DBSession, OptionalUser
-from app.core.config import settings
+from app.core.config import get_upload_directory, settings
 from app.core.logging import get_logger
 from app.models.complaint import (
     ComplaintCategory,
@@ -44,9 +44,6 @@ from app.services.complaint_service import (
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/complaints", tags=["complaints"])
-
-# Ensure uploads directory exists
-os.makedirs(settings.upload_dir, exist_ok=True)
 
 
 # ── File Upload ───────────────────────────────────────────────────────────────
@@ -91,10 +88,12 @@ async def upload_media(
         ext = ".jpg" if "image" in content_type else ".wav"
 
     unique_filename = f"{uuid.uuid4().hex[:12]}_{file.filename}"
-    file_path = os.path.join(settings.upload_dir, unique_filename)
+    upload_directory = get_upload_directory()
+    file_path = os.path.join(upload_directory, unique_filename)
 
     # Save file
     try:
+        os.makedirs(upload_directory, exist_ok=True)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as exc:
